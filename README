@@ -1,0 +1,60 @@
+ytfzf
+-----
+CLI to search and stream YouTube videos
+
+
+About
+-----
+This script is a stripped down version of pystardust's ytfzf, a CLI tool to
+search and stream YouTube videos using fzf and youtube-dl. Original source
+code: https://github.com/pystardust/ytfzf
+
+All nonessential features of the original script were removed (about 95% of the
+code). Only the searching and streaming functionalities where preserved. Why?
+Because I don't like having features I don't use.
+
+
+Installation
+------------
+Just copy the script to a folder that is present in your path or run:
+
+    # make install
+
+
+Usage
+-----
+To use ytfzf, simply run:
+
+    $ ytfzf [QUERY]
+
+where QUERY is either nothing or a set of search terms to look up on YouTube.
+If no search terms are specified, the videos from YouTube's homepage will be
+fetched. You can pass the cookie 'VISITOR_INFO1_LIVE' as an argument to the
+cURL command to obtain video recommendations from YouTube based on what you've
+watched before. The value for this cookie can be found with the developer tools
+found in most browsers.
+
+
+Dependencies
+------------
+- fzf
+- youtube-dl
+- jq
+- mpv (optional)
+
+
+Contributing
+------------
+Patches and suggestions are welcome. To submit them please contact:
+Johannes Thyssen Tishman <johannes@thyssentishman.com>
+
+
+Credits
+-------
+pystardust: https://github.com/pystardust/ytfzf
+
+
+License
+-------
+Copyright (c) Johannes Thyssen Tishman
+Distributed under the GNU General Public License

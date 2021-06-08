@@ -1,0 +1,91 @@
+#!/bin/sh
+#
+# This script is a stripped down version of pystardust's ytfzf, a CLI tool to
+# search and stream YouTube videos using fzf and youtube-dl. Original source
+# code: https://github.com/pystardust/ytfzf
+#
+# Copyright (C) 2021 Ditoma Rigobert KEGDIGOMA
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+base='https://www.youtube.com'
+
+help() {
+cat << EOF
+Usage: ytfzf [QUERY]
+ -v,  --video           Stream video
+ -a,  --audio           Stream audio
+ -dv, --download-video  Download video
+ -da, --download-audio  Download audio
+ -h,  --help            Show this help message
+
+EOF
+}
+
+fetch() {
+    #curl -s -b 'VISITOR_INFO1_LIVE=<value>' "$url" \ \\for recommendations
+    curl -s "$url" \
+        | tr -d '\n' \
+        | sed -E 's|^.*var ytInitialData ?=||; s|;</script>.*||;' \
+        | jq -r '.contents|..|.videoRenderer? | select(. !=null)
+            | "\(.videoId)'" \
+            "'\(.title.runs[0].text)'" \
+            "'| \(.longBylineText.runs[0].text)'" \
+            "'| \(.lengthText.simpleText)'" \
+            "'| \(.publishedTimeText.simpleText)'" \
+            "'| \(.shortViewCountText.simpleText)"' \
+        | iconv -c -t ASCII//TRANSLIT \
+        | sed 's/[[:space:]][[:space:]]\+|/'"$(printf '\t')"'|/g'
+}
+
+main() {
+    url="$base"
+    results=$(printf '0 Search\n' && fetch)
+    [ -n "$results" ] && selection=$(printf '%s' "$results" \
+        | column -t -s "$(printf '\t')" \
+        | fzf --with-nth=2.. | awk '{print $1}')
+    if [ -n "$selection" ]; then
+        [ "$selection" = '0' ] \
+        && clear && printf 'Search: ' && read -r ans
+        if [ -n "$ans" ]; then
+            clear && printf 'Searching...'
+            url="${base}/results?search_query=$(printf '%s' "$ans" | tr ' ' '+')"
+            results=$(fetch)
+            selection=$(printf '%s' "$results" \
+                | column -t -s "$(printf '\t')" \
+                | fzf --with-nth=2.. | awk '{print $1}')
+        fi
+        clear && printf 'Loading...'
+    fi
+}
+
+case "$1" in
+    -v|--video)
+        main && clear
+        cmd="mpv ${base}/watch?v=${selection}" ;;
+    -a|--audio)
+        main && clear
+        cmd="mpv \"${base}/watch?v=${selection}\" --no-video" ;;
+    -dv|--download-video)
+        main && clear
+        cmd="youtube-dl --format mp4 \"${base}/watch?v=${selection}\"" ;;
+    -da|--download-audio)
+        main && clear
+        cmd="youtube-dl -x --audio-format mp3 \"${base}/watch?v=${selection}\"" ;;
+    ""|-h|--help) help ;;
+esac
+
+if [ -n "$selection" ]; then
+    eval "$cmd"
+fi
