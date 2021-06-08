@@ -46,7 +46,7 @@ Dependencies
 Contributing
 ------------
 Patches and suggestions are welcome. To submit them please contact:
-Johannes Thyssen Tishman <johannes@thyssentishman.com>
+
 
 
 Credits
@@ -56,5 +56,5 @@ pystardust: https://github.com/pystardust/ytfzf
 
 License
 -------
-Copyright (c) Johannes Thyssen Tishman
+Copyright (c) Rigobert Ditoma KEGDIGOMA
 Distributed under the GNU General Public License
