@@ -3,8 +3,7 @@ PREFIX = /usr/local/bin
 SCRIPT = ytfzf
 
 install:
-	#pacman -S --needed youtube-dl mpv jq curl fzf
-	#pacman -S --needed --noconfirm youtube-dl mpv jq curl fzf
+	pacman -S --needed --noconfirm youtube-dl mpv jq curl fzf
 	mkdir -p ${DESTDIR}${PREFIX}
 	cp ${SCRIPT} ${DESTDIR}${PREFIX}
 	chmod 755 ${DESTDIR}${PREFIX}/${SCRIPT}
